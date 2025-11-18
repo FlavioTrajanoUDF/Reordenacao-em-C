@@ -102,8 +102,18 @@ Metricas quickSort(int arr[], int n) {
 /* -------- Função para gerar vetor aleatório -------- */
 void gerarVetor(int arr[], int n) {
     for (int i = 0; i < n; i++)
-        arr[i] = rand() % 100000;  // valores entre 0 e 99999
+        arr[i] = rand() % 100000;
 }
+
+/* Estrutura para armazenar resultados CSV */
+typedef struct {
+    int N;
+    Metricas bubble, selection, quick;
+} Resultado;
+
+/* Array global fixo para até 10 testes (suficiente aqui) */
+Resultado resultadosCSV[10];
+int idxCSV = 0;
 
 /* -------- Função para testar para vários N -------- */
 void testarN(int N) {
@@ -129,6 +139,13 @@ void testarN(int N) {
     printf("\nBubble Sort:    passos = %lld   tempo = %.3f ms\n", mBubble.passos, mBubble.tempo_ms);
     printf("Selection Sort: passos = %lld   tempo = %.3f ms\n", mSelect.passos, mSelect.tempo_ms);
     printf("Quick Sort:     passos = %lld   tempo = %.3f ms\n", mQuick.passos, mQuick.tempo_ms);
+
+    /* ---- salva resultados no array CSV ---- */
+    resultadosCSV[idxCSV].N = N;
+    resultadosCSV[idxCSV].bubble = mBubble;
+    resultadosCSV[idxCSV].selection = mSelect;
+    resultadosCSV[idxCSV].quick = mQuick;
+    idxCSV++;
 
     free(v1);
     free(v2);
@@ -158,7 +175,6 @@ int main() {
     Metricas mQuick  = quickSort(arr3, n);
 
     printf("\n===== RESULTADOS ==============\n");
-
     printArray(arr1, n);
 
     printf("\nBubble Sort:\nPassos: %lld | Tempo: %.3f ms\n", mBubble.passos, mBubble.tempo_ms);
@@ -166,13 +182,27 @@ int main() {
     printf("\nQuick Sort:\nPassos: %lld | Tempo: %.3f ms\n", mQuick.passos, mQuick.tempo_ms);
 
     printf("\n===============================\n\n\n");
-    
+
     printf("\nVETORES ALEATORIOS: \n");
 
     /* ------- NOVOS TESTES PARA N GRANDES ------- */
     testarN(100);
     testarN(1000);
     testarN(10000);
+
+    /* ----------- RESUMO CSV FINAL ----------- */
+    printf("\n\n===== RESUMO CSV =====\n");
+    printf("N,passosBubble,tempoBubble_ms,passosSelection,tempoSelection_ms,passosQuick,tempoQuick_ms\n");
+
+    for (int i = 0; i < idxCSV; i++) {
+        Resultado r = resultadosCSV[i];
+        printf("%d,%lld,%.3f,%lld,%.3f,%lld,%.3f\n",
+               r.N,
+               r.bubble.passos,   r.bubble.tempo_ms,
+               r.selection.passos, r.selection.tempo_ms,
+               r.quick.passos,     r.quick.tempo_ms
+        );
+    }
 
     return 0;
 }
